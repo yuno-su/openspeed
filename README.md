@@ -110,17 +110,17 @@ Nodes that stop answering are hidden with `'enabled' => false` and kept in the f
 
 ```php
 [
-    'name'     => 'Chisinau, Moldova — md.example.com',
+    'name'     => 'Chisinau, Moldova',
     'city'     => 'Chisinau',
     'country'  => 'Moldova',
-    'provider' => 'MivoCloud',
-    'url'      => 'https://mivocloud.com/',
-    'server'   => 'backend/',
+    'provider' => 'Hosting or ISP',
+    'url'      => 'https://hosting-or-isp',
+    'server'   => 'http://your-domain/backend/',
     'dlURL'    => 'garbage.php',
     'ulURL'    => 'empty.php',
     'pingURL'  => 'empty.php',
     'getIpURL' => 'getIP.php',
-    'speed'    => '',
+    'speed'    => 'your speed in mbps',
     'type'     => 'dc',
     'enabled'  => true,
 ],
@@ -146,9 +146,9 @@ All three are datacenter nodes, so the numbers are honest rather than a home lin
 
 | Server | Location | Sponsor | Speed |
 | --- | --- | --- | --- |
-| `openspeed.bond/backend` | Warsaw, Poland | [OpenSpeed](https://openspeed.bond) | — |
+| `openspeed.bond` | Warsaw, Poland | [OpenSpeed](https://openspeed.bond) | 21 Mbps |
 | `md.openspeed.bond` | Chisinau, Moldova | [MivoCloud](https://mivocloud.com) | 37 Mbps |
-| `cz.openspeed.bond/backend` | Prague, Czechia | [invogram.biz](https://invogram.biz) | 27 Mbps |
+| `cz.openspeed.bond` | Prague, Czechia | [invogram.biz](https://invogram.biz) | 27 Mbps |
 
 ## Project layout
 
