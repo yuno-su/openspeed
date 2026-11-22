@@ -11,7 +11,9 @@
   &nbsp;·&nbsp;
   <a href="#faq">FAQ</a>
   &nbsp;·&nbsp;
-  <a href="#adding-a-server">Add a server</a>
+  <a href="#run-your-own-node">Host a node</a>
+  &nbsp;·&nbsp;
+  <a href="#sponsors">Sponsors</a>
   &nbsp;·&nbsp;
   <a href="LICENSE">MIT</a>
 </p>
@@ -19,8 +21,8 @@
 <p align="center">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3b82f6?style=flat-square">
   <img alt="PHP 5.6+" src="https://img.shields.io/badge/PHP-5.6%2B-777bb4?style=flat-square">
+  <img alt="Languages: 6" src="https://img.shields.io/badge/languages-6-success?style=flat-square">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-success?style=flat-square">
-  <img alt="Status: live" src="https://img.shields.io/badge/status-live-success?style=flat-square">
 </p>
 
 ---
@@ -29,21 +31,21 @@
 
 OpenSpeed measures your connection **right in the browser** — download, upload, latency and jitter — against a catalogue of independent servers across Russia, the CIS, Europe, Asia and North America. No installs, no accounts, no tracking.
 
-It speaks the [LibreSpeed](https://github.com/librespeed/speedtest) backend protocol, so any compatible node can be plugged into the catalogue, and the frontend itself is a single PHP application with zero build steps.
+The whole site is a **single PHP application with zero build steps**, and every test point speaks the [LibreSpeed](https://github.com/librespeed/speedtest) backend protocol — so a two-dollar VPS with nginx and PHP is enough to host a node.
 
 ## Features
 
 - **Download, upload, ping and jitter** — measured in the browser, streamed by the node itself.
-- **Server picker** with city, country, provider and a measured speed hint for every entry.
+- **Server picker** with city, country, provider, a measured speed hint and an optional sponsor link.
 - **IP and ISP display** through each node's `getIP.php` backend.
 - **HTTP-only by design** — no mixed content, no proxy hop, honest numbers. See [below](#why-the-site-is-http-only).
+- **Six interface languages** — English, Russian, Spanish, German, French, Polish ([authors](langs/AUTHORS.md)).
 - **Zero dependencies** — no database, no Composer, no bundler.
-- **Bilingual interface** — English and Russian out of the box (`langs/`).
 - **Self-hostable** — drop the files on any PHP hosting and edit one array.
 
 ## How it works
 
-The frontend is plain PHP + JavaScript. Every node exposes the LibreSpeed backend of three files:
+The frontend is plain PHP + JavaScript written for this project. Only the **backend** comes from LibreSpeed, and it is three files:
 
 | File | Purpose |
 | --- | --- |
@@ -77,6 +79,33 @@ The trade-off is explicit and deliberate: the browser marks the page as *Not sec
 
 Requirements: **PHP 5.6+** (8.x recommended), any web server, no database.
 
+## Run your own node
+
+Running a test point is genuinely easy — the backend is three PHP files and a few kilobytes of traffic. Anything below is enough:
+
+| Option | What you need |
+| --- | --- |
+| **Weak VPS** | Apache or nginx + PHP-FPM, 256 MB of RAM is plenty |
+| **Shared hosting** | PHP hosting that allows `fetch`/XHR to your own domain (CORS) and does not cap the transfer volume |
+| **Free PHP hosting** | e.g. [anonhosting.io](https://anonhosting.io) (where `md.openspeed.bond` runs), [serv00.com](https://serv00.com), [ct8.pl](https://ct8.pl) |
+
+Steps:
+
+1. Upload the `backend/` folder from this repository to your host.
+2. Check that `https://your-host/backend/getIP.php` answers with JSON (a 404 or an HTML page means the path is wrong).
+3. Add a block to `servers.php` — or open a pull request so the node lands in the public catalogue.
+
+## Criteria for a node
+
+A node is added to the public list only if all of this holds:
+
+- **Stable throughput above 10 Mbit/s** — measured repeatedly, not a single lucky run.
+- **General stability** — the node answers `empty.php`, `garbage.php` and `getIP.php` day after day, not just right after it was set up.
+- **Honest bandwidth** — no throttling the test files, no traffic caps that die after a few hundred megabytes.
+- **HTTPS is welcome, HTTP is fine too** — the site is HTTP-only, so plain `http://` nodes work out of the box.
+
+Nodes that stop answering are hidden with `'enabled' => false` and kept in the file for later.
+
 ## Adding a server
 
 ```php
@@ -85,6 +114,7 @@ Requirements: **PHP 5.6+** (8.x recommended), any web server, no database.
     'city'     => 'Chisinau',
     'country'  => 'Moldova',
     'provider' => 'MivoCloud',
+    'url'      => 'https://mivocloud.com/',
     'server'   => 'backend/',
     'dlURL'    => 'garbage.php',
     'ulURL'    => 'empty.php',
@@ -98,12 +128,23 @@ Requirements: **PHP 5.6+** (8.x recommended), any web server, no database.
 
 A node qualifies only if `garbage.php` actually streams megabytes. A 404 page, an HTML error or a kilobyte response is not a node.
 
+## Sponsors
+
+**We want your servers.** If you run a machine with a clean pipe, fork the repository, add your block and open a pull request — we test it, and if it holds up it goes live for everyone.
+
+And the credit goes to **you**, not to your provider:
+
+- your name (or nickname) goes into the node's `provider` field, exactly as you want it written;
+- the `url` field turns into a clickable **sponsor link** under the location in the server picker — your site, your profile, your project;
+- the same name stays in the git history of `servers.php`, so the credit is permanent.
+
+Datacenter VPS, home fibre, student lab, ISP backbone — all welcome, as long as it passes the [criteria](#criteria-for-a-node).
+
 ## Own nodes
 
-| Node | Location | Provider |
+| Node | Location | Sponsor |
 | --- | --- | --- |
-| `openspeed.bond/backend` | Warsaw, Poland | serv00 |
-| `ru.openspeed.bond:88` | Elektrostal, Russia | Beeline |
+| `openspeed.bond/backend` | Warsaw, Poland | OpenSpeed |
 | `md.openspeed.bond` | Chisinau, Moldova | MivoCloud |
 
 ## Project layout
@@ -113,19 +154,33 @@ index.php          entry point, hero and test UI
 servers.php        the whole server catalogue
 results.php        result page
 add.php            submit a server
+info.php           IP / ISP enrichment with a local cache
 inc/header.php     shared header and the HTTP-only redirect
 inc/footer.php     shared footer
-backend/           LibreSpeed-compatible backend
+backend/           LibreSpeed-compatible backend (upstream files)
 assets/            CSS, JS, fonts
-langs/             en.json, ru.json
+langs/             one JSON per language + AUTHORS.md
 ```
+
+## Languages
+
+| Code | Language | Author |
+| --- | --- | --- |
+| `en` | English | Danil "yuno" Zhuzhich |
+| `ru` | Русский | Danil "yuno" Zhuzhich |
+| `es` | Español | OpenSpeed maintainers |
+| `de` | Deutsch | OpenSpeed maintainers |
+| `fr` | Français | OpenSpeed maintainers |
+| `pl` | Polski | OpenSpeed maintainers |
+
+Adding one is a single file: copy `langs/en.json`, translate the values, keep the keys, set `"_name"` and `"_author"` — the switcher picks it up automatically. Full details in [`langs/AUTHORS.md`](langs/AUTHORS.md).
 
 ## FAQ
 
 <details>
 <summary><b>Why does the site redirect from HTTPS to HTTP?</b></summary>
 
-Because a page loaded over HTTPS cannot talk to plain-HTTP nodes — the browser blocks it as mixed content. Roughly a quarter of the catalogue, including some of the fastest servers, only speaks HTTP. Redirecting to HTTP makes every node reachable directly, without a proxy and without lying about latency.
+Because a page loaded over HTTPS cannot talk to plain-HTTP nodes — the browser blocks it as mixed content. A large part of the catalogue, including some of the fastest servers, only speaks HTTP. Redirecting to HTTP makes every node reachable directly, without a proxy and without lying about latency.
 </details>
 
 <details>
@@ -167,7 +222,7 @@ Wi-Fi, background traffic, CPU load, node congestion and whichever route your IS
 <details>
 <summary><b>Can I add my own server to the catalogue?</b></summary>
 
-Yes — add an entry to `servers.php` (format above) and open a pull request. The only requirement is that the node actually streams data through `garbage.php`.
+Yes. Follow the [criteria](#criteria-for-a-node), add an entry to `servers.php` and open a pull request — and read the [Sponsors](#sponsors) section, because the credit goes to you personally.
 </details>
 
 <details>
@@ -176,18 +231,24 @@ Yes — add an entry to `servers.php` (format above) and open a pull request. Th
 No. Copy the files, serve them with PHP, done.
 </details>
 
+<details>
+<summary><b>Is the site open source?</b></summary>
+
+The frontend, the catalogue and the translations are MIT. Only the backend files in `backend/` are upstream LibreSpeed and stay LGPLv3 — see [License](#license).
+</details>
+
 ## Contributing
 
-Pull requests are welcome: new working nodes, translation fixes, UI improvements, backend edge cases. If you add a server, include its city, country, provider and measured speed so the catalogue stays useful.
+Pull requests are welcome: new working nodes, translation fixes, UI improvements, backend edge cases. If you add a server, include its city, country, sponsor name and measured speed so the catalogue stays useful.
 
 ## License
 
-The OpenSpeed frontend and the server catalogue are released under the [MIT License](LICENSE).
+The OpenSpeed frontend, server catalogue and translations are released under the [MIT License](LICENSE).
 
-The LibreSpeed backend files in `backend/` (`garbage.php`, `empty.php`, `getIP.php` and helpers) remain under **LGPLv3** and are not relicensed here. Original project: [librespeed/speedtest](https://github.com/librespeed/speedtest).
+Only the backend files in `backend/` (`garbage.php`, `empty.php`, `getIP.php` and helpers) come from [LibreSpeed](https://github.com/librespeed/speedtest), stay under **LGPLv3** and are not relicensed here.
 
 ## Credits
 
-- [LibreSpeed](https://github.com/librespeed/speedtest) — the backend protocol and the original idea.
+- [LibreSpeed](https://github.com/librespeed/speedtest) — the backend protocol this project speaks.
 - [JetBrains Mono](https://www.jetbrains.com/lp/mono/) — the typeface used in the UI and the logo.
 - Every volunteer who keeps a node running — the catalogue exists because of them.

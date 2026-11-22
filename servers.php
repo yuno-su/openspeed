@@ -28,11 +28,11 @@
 return [
     // ------- OpenSpeed servers -------
 [
-        'name'     => 'Warsaw, Poland — serv00.com (host)',
+        'name'     => 'Warsaw, Poland',
         'city'     => 'Warsaw',
         'country'  => 'Poland',
-        'provider' => 'serv00.com',
-        'url'      => 'https://serv00.com/',
+        'provider' => 'OpenSpeed',
+        'url'      => 'https://openspeed.bond/',
         'server'   => 'backend/',
         'dlURL'    => 'garbage.php',
         'ulURL'    => 'empty.php',

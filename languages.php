@@ -4,8 +4,9 @@
  * OpenSpeed i18n loader (PHP 5.6+)
  *
  * Languages live in langs/<code>.json (flat "key": "text" dict, "_name" key
- * holds the native language name shown in the switcher). Drop a new file in
- * langs/ and it appears in the switcher automatically.
+ * holds the native language name shown in the switcher, the optional "_author"
+ * key credits the translator — the list of authors lives in langs/AUTHORS.md).
+ * Drop a new file in langs/ and it appears in the switcher automatically.
  * Current language: ?lang=xx overrides, cookie os_lang remembers, default en.
  */
 
