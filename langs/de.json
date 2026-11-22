@@ -107,5 +107,6 @@
   "foot_store": "Keine Ergebnisse werden gespeichert.",
   "unit_mbit": "Mbit/s",
   "fd_url": "Website des Anbieters oder Sponsors (mit https://) — erscheint als Link unter dem Standort",
-  "srv_proxy": "Proxy"
+  "srv_proxy": "Proxy",
+  "st_error": "Keine Verbindung zum Testserver — wähle einen anderen"
 }

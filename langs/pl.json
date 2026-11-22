@@ -107,5 +107,6 @@
   "foot_store": "Żadne wyniki nie są zapisywane.",
   "unit_mbit": "Mbit/s",
   "fd_url": "Strona dostawcy lub sponsora (z https://) — pokazywana jako link pod lokalizacją",
-  "srv_proxy": "Proxy"
+  "srv_proxy": "Proxy",
+  "st_error": "Nie można połączyć się z serwerem — wybierz inny"
 }

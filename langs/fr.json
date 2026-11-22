@@ -107,5 +107,6 @@
   "foot_store": "Aucun résultat n'est stocké.",
   "unit_mbit": "Mbit/s",
   "fd_url": "Site du fournisseur ou du sponsor (avec https://) — affiché comme lien sous l'emplacement",
-  "srv_proxy": "Proxy"
+  "srv_proxy": "Proxy",
+  "st_error": "Impossible de joindre le serveur — choisis-en un autre"
 }

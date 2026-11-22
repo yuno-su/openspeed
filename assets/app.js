@@ -26,6 +26,7 @@
   var selected = -1;
   var pings = {};   /* index -> ms | null */
   var last = { dl: 0, ul: 0, ping: 0, jitter: 0, ip: "", isp: "" };
+  var started = false;
 
   /* ---------- gauge ---------- */
 
@@ -108,18 +109,15 @@
   function prox(s) {
     return location.protocol === "https:" && String(s.server || "").indexOf("http://") === 0;
   }
-  function turl(s, file) {
-    return prox(s)
-      ? "backend/tunnel.php?u=" + encodeURIComponent(s.server) + "&f=" + file
-      : s.server + file;
-  }
+  /* The engine builds request URLs as s.server + s.<x>URL itself, so the four
+     fields must stay exactly as written in servers.php (relative file names).
+     Making them absolute here produced URLs like
+     http://host/backend/http://host/backend/empty.php, every engine ping then
+     failed, selectServer returned null and start() crashed on null.server -
+     that was the frozen "Connecting" state on the live site. */
   function tp(s) {
     var c = {}, k;
     for (k in s) c[k] = s[k];
-    c.dlURL = turl(s, s.dlURL);
-    c.ulURL = turl(s, s.ulURL);
-    c.pingURL = turl(s, s.pingURL);
-    c.getIpURL = turl(s, s.getIpURL);
     return c;
   }
 
@@ -180,7 +178,7 @@
 
   function probe(i) {
     var s = SERVERS[i];
-    var base = turl(s, s.pingURL);
+    var base = s.server + s.pingURL;
     base += (base.indexOf("?") < 0 ? "?" : "&") + "cors=true";
     var times = [];
     function once() {
@@ -244,7 +242,7 @@
       if (q && hay.indexOf(q) < 0) continue;
       n++;
       var row = document.createElement("div");
-      row.className = "srvrow" + (i === selected ? " sel" : "");
+      row.className = "srvrow" + (i === selected ? " sel" : "") + (pings[i] === null ? " dead" : "");
       row.setAttribute("data-i", String(i));
       row.setAttribute("role", "button");
       row.setAttribute("tabindex", "0");
@@ -361,7 +359,16 @@
     setTimeout(function () { location.href = "results.php"; }, 900);
   }
 
+  function failStart() {
+    running = false;
+    test = null;
+    started = false;
+    showRun(false);
+    setStatus(t("st_error"));
+  }
+
   function startTest() {
+    if (selected < 0) { selected = 0; renderBar(); }
     var s = new Speedtest();
     var q = new URLSearchParams(location.search);
     if (q.get("dl")) s.setParameter("time_dl_max", parseFloat(q.get("dl")));
@@ -371,13 +378,26 @@
     s.onend = onend;
     resetCards();
     last = { dl: 0, ul: 0, ping: 0, jitter: 0, ip: last.ip, isp: last.isp };
-    s.addTestPoints([tp(SERVERS[selected >= 0 ? selected : 0])]);
+    s.addTestPoints([tp(SERVERS[selected])]);
     running = true;
+    started = false;
     showRun(true);
     valEl.textContent = "\u2026";
     setUnit(t("unit_mbps"));
     setStatus(t("st_connect"));
-    s.selectServer(function () { s.start(); });
+    /* if the pick turns out unreachable, selectServer answers null or never
+       answers at all - show an error instead of hanging forever */
+    var wd = setTimeout(function () {
+      if (running && !started) failStart();
+    }, 30000);
+    try {
+      s.selectServer(function (picked) {
+        clearTimeout(wd);
+        if (!picked) { failStart(); return; }
+        started = true;
+        s.start();
+      });
+    } catch (e) { clearTimeout(wd); failStart(); }
     test = s;
   }
 

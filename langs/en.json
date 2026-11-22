@@ -17,6 +17,7 @@
   "st_ul": "Upload test",
   "st_done": "Done — opening your report…",
   "st_abort": "Test aborted",
+  "st_error": "Couldn't reach the test server — pick another one",
   "start": "START",
   "stop": "STOP",
   "card_ping": "Ping",

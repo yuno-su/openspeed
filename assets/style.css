@@ -369,6 +369,7 @@ a.sr-sub .ext { font-size: 10px; color: var(--muted); margin-left: 4px; }
 .srvrow:last-child { border-bottom: 0; }
 .srvrow:hover { background: var(--surface2); }
 .srvrow.sel { background: #181b1e; box-shadow: inset 2px 0 0 var(--white); }
+.srvrow.dead { opacity: .4; }
 
 .sr-main { min-width: 0; }
 .sr-loc { font: 700 13px/1.4 var(--mono); color: var(--white); }
