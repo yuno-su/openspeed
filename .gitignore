@@ -1,0 +1,16 @@
+# кэш ip-api
+cache/
+
+# логи и временные файлы
+*.log
+*.tmp
+.error_log
+
+# локальные настройки
+.env
+config.local.php
+
+# система
+.DS_Store
+Thumbs.db
+desktop.ini

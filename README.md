@@ -1,66 +1,76 @@
-# OpenSpeed
+# OpenSpeed — сайт спидтеста на движке LibreSpeed
 
-A lightweight in-browser speed test built on top of [LibreSpeed](https://github.com/librespeed/speedtest) — with its own frontend and an open catalogue of servers.
+Тёмный многостраничник на PHP 5.6+: тест, отчёт о замере, «о проекте», «добавить сервер».
+Дизайн — графитовый чёрный, языки — `langs/*.json`, список серверов — `servers.php`.
 
-**[openspeed.bond](https://openspeed.bond)**
+## Структура
 
-## What it is
+- `index.php` — страница теста (гейдж, выбор сервера, запуск)
+- `results.php` — отчёт: скорости, IP, провайдер, AS, тип подключения
+- `about.php` — о проекте
+- `add.php` — инструкция по добавлению своего сервера через PR в github.com/yuno-su/openspeed
+- `servers.php` — список тестовых серверов (правится только тут)
+- `languages.php` — загрузчик переводов (кука `os_lang`, параметр `?lang=`)
+- `langs/*.json` — переводы; новый язык = новый файл, сам появится в переключателе
+- `info.php` — обогащение данных через ip-api.com с кэшем в `cache/ipinfo.json`
+- `inc/header.php`, `inc/footer.php` — общий каркас страниц
+- `assets/` — style.css, site.js (общий), app.js (тест), results.js (отчёт)
+- `speedtest.js`, `speedtest_worker.js` — движок LibreSpeed v6.3.1 (не менять)
+- `backend/` — PHP-бэкенд LibreSpeed (empty, garbage, getIP)
 
-OpenSpeed measures your internet speed without installing anything and without an account: download, upload, latency and jitter. Everything runs in the browser, and no results are sent anywhere.
+## Метки серверов в списке
 
-The server catalogue is a curated list of independent nodes compatible with the LibreSpeed backend. Every entry lists its city, country, provider and measured speed.
+- `type`: `dc` = датацентр, `res` = резидентный, пусто = автоопределение через
+  ip-api.com (флаг hosting) силами `info.php`, кэш 12 часов
+- `tag`: `os` = сервер OpenSpeed, `ls` = сервер сообщества LibreSpeed
+- `speed`: подпись канала («1 Gbps»), пусто = не показывать
+- пинг в списке меряется живьём из браузера при открытии страницы
 
-## Features
+## Заливка
 
-- download / upload / ping / jitter measurement
-- selectable test locations: Russia, CIS, Europe, Asia, America
-- public IP and ISP display
-- simple configuration: the whole server list lives in one PHP file
-- runs on any PHP hosting, no database and no dependencies
+- **Хост (serv00, openspeed.bond)**: залить всё содержимое папки в корень домена.
+  Создать папку `cache/` с правами на запись (если не создалась сама) — в ней
+  `info.php` держит кэш ip-api. Хост сам является тестовым сервером: `backend/`.
+- **ru и md серверы**: залить только содержимое папки `backend/` в корень каждого.
 
-## How it works
+## Добавление сервера
 
-The frontend is plain PHP + JS. Each node in the catalogue is a separate server exposing the LibreSpeed-compatible backend of three files:
+Скопировать блок в `servers.php`, заполнить поля, открыть PR в
+github.com/yuno-su/openspeed. Формат и пример — на странице `add.php`.
 
-| file | purpose |
-|---|---|
-| `garbage.php` | streams random data for the download test |
-| `empty.php` | accepts data for the upload test and answers pings |
-| `getIP.php` | returns the public IP and ISP info |
+## Добавление языка
 
-The backend path differs between nodes: usually `/backend/`, but some serve it from the site root or a subfolder such as `/librespeed/backend/`.
+Скопировать `langs/en.json` в `langs/de.json` (например), перевести значения,
+`_name` — название языка как оно должно выглядеть в переключателе. Готово.
 
-## Own nodes
+## Проверка
 
-| node | city | provider |
-|---|---|---|
-| `openspeed.bond/backend` | Warsaw, Poland | serv00 |
-| `md.openspeed.bond` | Chisinau, Moldova | MivoCloud |
+Быстрый тест без ожидания: `index.php?dl=3&ul=2` (3 с загрузка, 2 с отдача).
 
-## Setup
+## v4
+- `url` в servers.php — сайт провайдера/спонсора, показывается кликабельной ссылкой в списке (пусто = простой текст)
+- Шрифт JetBrains Mono лежит в assets/fonts (woff2, 3 начертания) — сайт не ходит за шрифтами на внешние серверы
 
-1. copy the files to any PHP-enabled hosting
-2. open `servers.php` and point the list at your own nodes:
-   ```php
-   'name'     => 'City, Country — domain',
-   'city'     => 'City',
-   'country'  => 'Country',
-   'provider' => 'Provider',
-   'server'   => 'backend/',
-   ```
-3. verify the backend path for every node — it may be the root or a subfolder instead of `/backend/`
-4. open the site and run a test
+## Смешанный контент: http-серверы при https-сайте
 
-## Requirements
+Сайт специально работает только по http: `inc/header.php` отдаёт 301-редирект с https на http
+(сохраняет путь и query). Поэтому смешанного контента нет, все серверы из списка меряются
+напрямую и честно - и пинг, и скорость.
 
-- PHP 5.6 or newer (8.x recommended)
-- Apache, nginx or any other web server
-- HTTPS with a valid certificate — without it some nodes will refuse to serve data
+Важно:
+- не включайте HSTS и «Always Use HTTPS» (Cloudflare) перед сайтом - редирект зациклится;
+- 301 кэшируется браузерами намертво: если когда-нибудь захотите вернуть https,
+  пользователям придётся сбрасывать кэш или сменить редирект на 302 заранее;
+- браузер помечает http-страницу «Not secure» - для спидтеста это некритично, secure context
+  нужен только geolocation/service worker/clipboard API, они на сайте не используются
+  (копирование отчёта работает через execCommand-фоллбэк).
 
-## Contributing
+Туннель `backend/tunnel.php` остался как запасной путь: если страницу всё же открыть по https
+(редирект обойдён), фронт сам завернёт http-серверы через хост и пометит их тегом «Proxy».
+На http-версии туннель не используется вовсе.
+Требование к хостингу: `allow_url_fopen` = On (на serv00 включено).
 
-If you know a working LibreSpeed node that is missing from the catalogue, feel free to send a pull request. The only rule: the node must actually stream megabytes through `garbage.php`, not return a 404 or an HTML page.
+## Лицензия
 
-## License
-
-The LibreSpeed frontend and backends are licensed under [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.html). Original project: [librespeed/speedtest](https://github.com/librespeed/speedtest).
+Собственный код проекта (фронтенд, вёрстка, каталог серверов) — MIT, Copyright (c) 2026 Danil Zhuzhich.
+Файлы бэкенда в `backend/` и движок `speedtest*.js` происходят из LibreSpeed и остаются под LGPLv3 — см. https://github.com/librespeed/speedtest
