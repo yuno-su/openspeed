@@ -142,10 +142,13 @@ Datacenter VPS, home fibre, student lab, ISP backbone — all welcome, as long a
 
 ## Own nodes
 
-| Node | Location | Sponsor |
-| --- | --- | --- |
-| `openspeed.bond/backend` | Warsaw, Poland | OpenSpeed |
-| `md.openspeed.bond` | Chisinau, Moldova | MivoCloud |
+All three are datacenter nodes, so the numbers are honest rather than a home line fighting for air.
+
+| Server | Location | Sponsor | Speed |
+| --- | --- | --- | --- |
+| `openspeed.bond/backend` | Warsaw, Poland | [OpenSpeed](https://openspeed.bond) | — |
+| `md.openspeed.bond` | Chisinau, Moldova | [MivoCloud](https://mivocloud.com) | 37 Mbps |
+| `cz.openspeed.bond/backend` | Prague, Czechia | [invogram.biz](https://invogram.biz) | 27 Mbps |
 
 ## Project layout
 
