@@ -43,6 +43,32 @@
     - 4: test finished. You can run it again by calling start() if you want.
  */
 
+/**
+ * Joins a backend base URL with a backend script path.
+ *
+ * `server` may be an absolute URL ("http://host/backend/"), a site-relative
+ * path ("backend/") or empty, and the per-script paths (dlURL, ulURL,
+ * pingURL, getIpURL) may be bare names ("empty.php") or full URLs.
+ * Plain concatenation doubled them into
+ * http://host/backend/http://host/backend/empty.php, so the join is
+ * normalised here:
+ *   - an absolute script URL wins over the base;
+ *   - leading slashes of the script are dropped, one separator is kept;
+ *   - a base that already ends with that script is returned as is.
+ */
+function osJoinURL(base, script) {
+  base = typeof base === "string" ? base : "";
+  script = typeof script === "string" ? script : "";
+  if (/^[a-z][a-z0-9+.\-]*:/i.test(script)) return script;
+  script = script.replace(/^\/+/, "");
+  if (script === "") return base;
+  if (base === "") return script;
+  if (base === script || base.slice(-(script.length + 1)) === "/" + script)
+    return base;
+  if (!/\/$/.test(base)) base += "/";
+  return base + script;
+}
+
 function Speedtest() {
   this._serverList = []; //when using multiple points of test, this is a list of test points
   this._selectedServer = null; //when using multiple points of test, this is the selected server
@@ -400,14 +426,22 @@ Speedtest.prototype = {
     );
     this.updater = run.updater;
     if (this._state == 2) {
-      this._settings.url_dl =
-        this._selectedServer.server + this._selectedServer.dlURL;
-      this._settings.url_ul =
-        this._selectedServer.server + this._selectedServer.ulURL;
-      this._settings.url_ping =
-        this._selectedServer.server + this._selectedServer.pingURL;
-      this._settings.url_getIp =
-        this._selectedServer.server + this._selectedServer.getIpURL;
+      this._settings.url_dl = osJoinURL(
+        this._selectedServer.server,
+        this._selectedServer.dlURL
+      );
+      this._settings.url_ul = osJoinURL(
+        this._selectedServer.server,
+        this._selectedServer.ulURL
+      );
+      this._settings.url_ping = osJoinURL(
+        this._selectedServer.server,
+        this._selectedServer.pingURL
+      );
+      this._settings.url_getIp = osJoinURL(
+        this._selectedServer.server,
+        this._selectedServer.getIpURL
+      );
       if (typeof this._originalExtra !== "undefined") {
         this._settings.telemetry_extra = JSON.stringify({
           server: this._selectedServer.name,
