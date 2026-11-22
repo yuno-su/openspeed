@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 140" width="640" height="140" role="img" aria-label="OpenSpeed">
+  <title>OpenSpeed</title>
+  <rect width="640" height="140" rx="24" fill="#0d0d0f"/>
+  <g fill="none" stroke="#f2f2f2" stroke-width="9.5" stroke-linecap="round">
+    <path d="M42.9 105.1A44 44 0 1 1 105.1 105.1"/>
+    <path d="M74 74L105 43"/>
+  </g>
+  <circle cx="74" cy="74" r="6.5" fill="#f2f2f2"/>
+  <text x="152" y="95" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace" font-size="58" font-weight="700" letter-spacing="9" fill="#f2f2f2">OPENSPEED</text>
+</svg>
