@@ -35,7 +35,6 @@ The backend path differs between nodes: usually `/backend/`, but some serve it f
 | node | city | provider |
 |---|---|---|
 | `openspeed.bond/backend` | Warsaw, Poland | serv00 |
-| `ru.openspeed.bond:88` | Elektrostal, Russia | Beeline |
 | `md.openspeed.bond` | Chisinau, Moldova | MivoCloud |
 
 ## Setup
